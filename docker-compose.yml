@@ -1,0 +1,46 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://shortener:shortener@db:5432/shortener
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./app:/code/app   # live-reload during dev
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=shortener
+      - POSTGRES_PASSWORD=shortener
+      - POSTGRES_DB=shortener
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  test:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql://shortener:shortener@db:5432/shortener_test
+      - REDIS_URL=redis://redis:6379/1
+      - JWT_SECRET_KEY=test-secret-key
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./app:/code/app
+      - ./tests:/code/tests
+    command: pytest -v
+
+volumes:
+  pgdata:
