@@ -11,6 +11,8 @@ from app.services.click_logger import log_click
 from app.services.rate_limiter import check_rate_limit
 from app.redis_client import redis_client, CACHE_TTL_SECONDS
 
+from app.config import BASE_URL
+
 router = APIRouter()
 
 
@@ -38,7 +40,7 @@ def shorten_url(
 
     return ShortenResponse(
         short_code=url_entry.short_code,
-        short_url=f"http://localhost:8000/{url_entry.short_code}",
+        short_url=f"{BASE_URL}/{url_entry.short_code}",
         long_url=url_entry.long_url,
         created_at=url_entry.created_at,
     )
